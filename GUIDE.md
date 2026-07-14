@@ -159,7 +159,7 @@ Template copies share no history with the shared repo, so fixes don't arrive on 
 Pull them in when you want them:
 
 ```bash
-git remote add upstream https://github.com/flyrank-bih/flyrank-ml-internship-starter
+git remote add upstream https://github.com/mohamedr456/flyrank-ml-internship
 git fetch upstream
 git merge upstream/main --allow-unrelated-histories
 ```

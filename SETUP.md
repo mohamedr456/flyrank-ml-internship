@@ -16,7 +16,7 @@ breaks it — read the ⚠️ lines even if you skip everything else.
 
 1. **Create a GitHub account** (free) at [github.com/join](https://github.com/join) — skip if you have one.
 2. **Make your own copy of this repo** — one click, no git needed: on
-   [the starter repo page](https://github.com/flyrank-bih/flyrank-ml-internship-starter), press
+   [the starter repo page](https://github.com/mohamedr456/flyrank-ml-internship), press
    **Use this template → Create a new repository** → public → any name → Create.
    You now own a full copy: the notebooks, the pipeline, your `work/` folder, and the CI
    leak-guard that keeps datasets out of git — all of it travels with you.
