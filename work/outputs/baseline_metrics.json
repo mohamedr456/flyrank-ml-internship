@@ -1,0 +1,11 @@
+{
+  "rule": "days_since_last_update >= 180 AND impressions_90d >= 100, ranked by impressions_90d",
+  "n_scored": 35,
+  "cell_decline_rate": 0.743,
+  "precision_at_10": 1.0,
+  "precision_at_20": 0.9,
+  "precision_at_35_full_depth": 0.743,
+  "precision_at_50_padded": 0.64,
+  "random_floor_p50_200_shuffles": 0.534,
+  "base_rate_dummy_floor": 0.542
+}
