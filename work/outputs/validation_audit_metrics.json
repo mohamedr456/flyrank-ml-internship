@@ -1,0 +1,12 @@
+{
+  "random_split": {
+    "p50": 0.92,
+    "auc": 0.767
+  },
+  "client_holdout": {
+    "p50": 0.7,
+    "auc": 0.653
+  },
+  "leak_injection_grouped": "see next cell",
+  "seed": 42
+}
