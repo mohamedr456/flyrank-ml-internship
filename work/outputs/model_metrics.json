@@ -1,0 +1,65 @@
+{
+  "design": "GroupKFold(5) by client_id, all numbers out-of-fold",
+  "metric": "precision_at_50 (+ auc_rf)",
+  "seed": 42,
+  "per_fold": [
+    {
+      "fold": 0,
+      "n_test": 7008,
+      "base_rate": 0.49,
+      "p50_random": 0.503,
+      "p50_rule": 0.38,
+      "p50_logreg": 0.48,
+      "p50_rf": 0.78,
+      "auc_rf": 0.648
+    },
+    {
+      "fold": 1,
+      "n_test": 5731,
+      "base_rate": 0.645,
+      "p50_random": 0.646,
+      "p50_rule": 0.6,
+      "p50_logreg": 0.4,
+      "p50_rf": 0.72,
+      "auc_rf": 0.579
+    },
+    {
+      "fold": 2,
+      "n_test": 5753,
+      "base_rate": 0.379,
+      "p50_random": 0.358,
+      "p50_rule": 0.38,
+      "p50_logreg": 0.2,
+      "p50_rf": 0.56,
+      "auc_rf": 0.72
+    },
+    {
+      "fold": 3,
+      "n_test": 5755,
+      "base_rate": 0.622,
+      "p50_random": 0.646,
+      "p50_rule": 0.7,
+      "p50_logreg": 0.66,
+      "p50_rf": 0.72,
+      "auc_rf": 0.671
+    },
+    {
+      "fold": 4,
+      "n_test": 5753,
+      "base_rate": 0.585,
+      "p50_random": 0.566,
+      "p50_rule": 0.74,
+      "p50_logreg": 0.82,
+      "p50_rf": 0.72,
+      "auc_rf": 0.646
+    }
+  ],
+  "means": {
+    "base_rate": 0.544,
+    "p50_random": 0.544,
+    "p50_rule": 0.56,
+    "p50_logreg": 0.512,
+    "p50_rf": 0.7,
+    "auc_rf": 0.653
+  }
+}
