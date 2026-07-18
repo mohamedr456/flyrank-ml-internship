@@ -1,0 +1,15 @@
+{
+  "top_k_precision": {
+    "10": 0.7,
+    "20": 0.7,
+    "50": 0.7,
+    "100": 0.69
+  },
+  "base_rate": 0.542,
+  "reason_code_top100": {
+    "MODEL_FLAG": 54,
+    "UNDER_CLICKING": 34,
+    "PAGE1_AT_RISK": 12
+  },
+  "seed": 42
+}
