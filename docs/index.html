@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Which pages should a content team refresh first? — a scored queue from real search data</title>
+<meta name="description" content="A refresh/content-opportunity scoring model built on real multi-client search data: honest client-holdout validation, a transparent baseline, and a ranked action queue with reason codes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --main:#0F766E; --text:#111827; --bg:#FAFAF9; --accent:#D97706; --muted:#6b7280; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font: 17px/1.65 Inter, system-ui, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 3rem 1.25rem 5rem; }
+  h1,h2,h3 { font-family:"Space Grotesk", Inter, sans-serif; line-height:1.25; }
+  h1 { font-size: 2rem; margin: 0.4rem 0 0.6rem; }
+  h2 { font-size: 1.35rem; margin-top: 2.6rem; border-bottom: 3px solid var(--main); padding-bottom:.3rem;}
+  p { margin: 0.9rem 0; }
+  .kicker { color:var(--main); font-weight:600; letter-spacing:.06em; text-transform:uppercase; font-size:.8rem;}
+  .byline { color:var(--muted); font-size:.95rem; }
+  .abstract { background:#fff; border-left:4px solid var(--main); padding: 1rem 1.2rem; border-radius:0 8px 8px 0; }
+  table { border-collapse: collapse; width:100%; margin: 1rem 0; font-size:.95rem; }
+  th,td { border:1px solid #e5e7eb; padding:.5rem .7rem; text-align:left; }
+  th { background:#f3f4f6; font-family:"Space Grotesk", Inter, sans-serif; }
+  .hl { color:var(--main); font-weight:600; }
+  figure { margin: 1.6rem 0; }
+  figure img { max-width:100%; border:1px solid #e5e7eb; border-radius:8px; background:#fff; }
+  figcaption { font-size:.9rem; color:var(--muted); margin-top:.45rem; }
+  code { background:#eef2f1; padding:.1rem .35rem; border-radius:4px; font-size:.9em; }
+  ul { padding-left: 1.2rem; }
+  .footer { margin-top:3rem; padding-top:1rem; border-top:1px solid #e5e7eb; font-size:.95rem; color:var(--muted); }
+  a { color:var(--main); }
+</style>
+</head>
+<body>
+<main>
+  <p class="kicker">FlyRank ML Internship · Capstone research paper · Lane 2</p>
+  <h1>Which pages should a content team refresh first?<br>A scored queue from real search data</h1>
+  <p class="byline">Mohamed Rabea · Machine Learning track, July 2026 cohort ·
+     <a href="https://github.com/mohamedr456/flyrank-ml-internship">code &amp; notebooks</a></p>
+
+  <h2 id="abstract">Abstract</h2>
+  <div class="abstract">
+    <p>Content teams can only refresh a handful of pages a week — which ones first? I built a
+    refresh-opportunity score on a real multi-client search dataset (30,000 pages across 32
+    pseudonymized clients, trailing-90-day metrics) and validated it the honest way: against a
+    transparent hand rule, under a client-holdout split, with deliberate leakage tests.
+    A random-forest ranker fills a 50-page review queue at <span class="hl">70% observed-declining
+    pages, vs 56% for the hand rule and 54% for random ordering</span> — and the same audit shows a
+    random split would have flattered the model to 92%, a +0.22 memorization gap. The output is a
+    ranked action queue with plain-language reason codes, built as decision-support for a weekly
+    editorial workflow, not a forecast.</p>
+  </div>
+
+  <h2 id="problem">1 · The problem</h2>
+  <p>A strategist managing dozens of client sites sees thousands of aging pages. Refreshing one
+  costs real editor hours; refreshing the wrong one wastes them, and clumsily rewriting a page
+  that still ranks can lose the ranking it holds. The decision this work supports:
+  <em>which ~50 pages should go into this week's review queue?</em> — one row = one page for one
+  client, one output = a ranked queue with a reason per row.</p>
+  <p>The obvious rule fails quietly. "Refresh what's old and visible" is FlyRank's own session
+  logic, and it's <em>right</em> — inside its tiny cell. On this panel it finds only 35 pages,
+  so it cannot even fill one week's queue. That starvation, not accuracy, is what a model must fix.</p>
+
+  <h2 id="data">2 · Data</h2>
+  <p>The public-safe FlyRank ML internship release (June 2026 build): a starter snapshot of
+  <strong>30,000 content items, 32 pseudonymized clients</strong>, trailing-90-day search and
+  engagement metrics per page. All IDs are hashes; no client names, URLs, or queries exist in the
+  data. Two traps the data dictionary documents and this work respects: rate columns are
+  ×100 percentages, and <code>avg_position = 0</code> means <em>no data</em>, not rank zero
+  (handled with an explicit <code>has_position</code> flag, never a blind fill).</p>
+  <p>Groundwork for the full 79M-row warehouse panel (17 months, 104 clients, gated on Hugging
+  Face) is committed alongside: a verified data contract on a mid-panel month proves the grain
+  (report_date × client × content), quantifies availability (only 36.7% of rows carry GSC data;
+  GA4 columns are fill, not zeros, on 95.8% of rows), and rehearses a leak-free future-window
+  label. Excluded on purpose, with reasons in the contract: label-derived trend columns
+  (features would be circular), product decision flags (would learn the old rule, not the world),
+  and AI-referral sessions (too sparse for label logic).</p>
+
+  <h2 id="method">3 · Methodology</h2>
+  <p><strong>Label.</strong> A page is "declining" if its measured trailing-90-day trend is down
+  (<code>trend_direction == "down"</code>; base rate 0.542). Named honestly: label and features
+  share the snapshot's window, so the model <em>ranks concurrent, observed decline</em> — it is a
+  prioritization score, not a forecast. (The forecasting variant — past-window features, strictly
+  future label — is designed and rehearsed in the committed data contract.)</p>
+  <p><strong>Features (9, all knowable at review time).</strong> Content age, days since last
+  update, log impressions, weighted average position + <code>has_position</code>, CTR, word count
+  + <code>has_word_count</code>, engagement rate. Banned and assert-guarded:
+  <code>trend_direction</code>, <code>trend_pct</code>, <code>is_declining_label</code>, all IDs.</p>
+  <p><strong>Baseline.</strong> The frozen transparent rule: updated ≥180 days ago AND ≥100
+  impressions/90d, ranked by impressions — one reason code, no fitted weights.</p>
+  <p><strong>Validation.</strong> GroupKFold(5) by client: every test client fully unseen, every
+  number out-of-fold, seed fixed (42). Two attacks committed with their receipts:
+  (1) injecting the label's parent column sends P@50/AUC to a perfect 1.000 — proving the harness
+  catches leaks — then it is removed; (2) swapping the grouped split for a random one inflates
+  P@50 from 0.700 to 0.920: a <span class="hl">+0.22 memorization gap</span> that is itself a
+  finding about why random splits flatter multi-client models.</p>
+
+  <h2 id="results">4 · Results</h2>
+  <table>
+    <tr><th>queue orderer</th><th>Precision@50 (client-holdout, mean of 5 folds)</th></tr>
+    <tr><td>random order (50 shuffles/fold)</td><td>0.544 (= base rate)</td></tr>
+    <tr><td>frozen hand rule</td><td>0.560 — and starves at 35 pages</td></tr>
+    <tr><td>logistic regression</td><td>0.512 — an honest negative: linear can't use the interactions</td></tr>
+    <tr><td><strong>random forest</strong></td><td><strong>0.700</strong> (AUC 0.653)</td></tr>
+  </table>
+  <figure>
+    <img src="img/fig1_p50_comparison.png" alt="Bar chart: Precision@50 for random order, hand rule, logistic regression and random forest under client-holdout; random forest leads at 0.70 versus a 0.544 base rate.">
+    <figcaption>The model fills a 50-page queue with 70% observed-declining pages where the rule manages 56% — and the rule can't even fill the queue.</figcaption>
+  </figure>
+  <figure>
+    <img src="img/fig2_lift_by_decile.png" alt="Bar chart: observed decline rate rises across model-score deciles, from below the 0.54 base rate in low deciles to the top decile clearly above it.">
+    <figcaption>Decline rate climbs monotonically with the out-of-fold model score — the ranking carries signal at every depth, not just the top.</figcaption>
+  </figure>
+  <figure>
+    <img src="img/fig3_importances.png" alt="Horizontal bar chart of feature importances: log impressions, average position and content age lead; days since last update is near the bottom.">
+    <figcaption>Reach, position and age carry the model. Staleness — the core of the hand rule — barely matters alone: the model relearned the signal audit's MIXED verdict.</figcaption>
+  </figure>
+  <p>Fold spread is wide (0.56–0.78) and tracks each fold's base rate (0.38–0.65) — with ~10 test
+  clients per fold, client mix moves every number. Reported, not hidden.</p>
+
+  <h2 id="limits">5 · Limitations &amp; honest framing</h2>
+  <ul>
+    <li>This ranks <strong>observed, concurrent</strong> decline in one snapshot. It does not
+        forecast next quarter, and nothing here supports a causal sentence about refreshing.</li>
+    <li>All results are within one portfolio of 32 pseudonymized clients in one window;
+        transfer to other portfolios or seasons is untested.</li>
+    <li>The label inherits every quirk of trailing-window trend measurement; a future-window
+        label on the 17-month warehouse panel is the designed next step, with per-client history
+        checks (histories start up to 16 months apart) and the final month sealed as test.</li>
+    <li>No page content is visible to the model — reason codes are hypotheses for a human,
+        never diagnoses.</li>
+  </ul>
+
+  <h2 id="recs">6 · Ranked recommendations</h2>
+  <p>The deliverable an editor touches: a ranked queue where every row carries one reason code and
+  one action, in the queue's own words —</p>
+  <table>
+    <tr><th>reason code</th><th>plain-English action</th></tr>
+    <tr><td><code>STALE_VISIBLE</code></td><td>Untouched 180+ days but still seen in search — refresh the content.</td></tr>
+    <tr><td><code>UNDER_CLICKING</code></td><td>Earns less than half its position band's typical CTR — rewrite title &amp; description.</td></tr>
+    <tr><td><code>PAGE1_AT_RISK</code></td><td>Still ranks page-1 with a high risk score — protect: update facts and internal links carefully.</td></tr>
+    <tr><td><code>LOW_ENGAGEMENT</code></td><td>Visible but readers leave — review content depth and intent match.</td></tr>
+    <tr><td><code>MODEL_FLAG</code></td><td>High score, no single rule explains it — human review first.</td></tr>
+  </table>
+  <p>Workflow guardrails ship with the queue: a human opens every page before acting; nothing is
+  auto-rewritten, auto-published, or pruned from a score; and five monitoring tripwires (precision
+  decay vs the frozen baseline, score drift, mix shift, reason-code collapse, panel events) define
+  when to stop trusting the ranks and retrain.</p>
+
+  <h2 id="repro">7 · Reproducibility</h2>
+  <p>Everything reruns from a fresh clone of
+  <a href="https://github.com/mohamedr456/flyrank-ml-internship">mohamedr456/flyrank-ml-internship</a>:
+  notebooks under <code>work/notebooks/</code> (<code>w03</code> data contract →
+  <code>w04</code> baseline → <code>w05</code> model → <code>w06</code> validation audit →
+  <code>w07</code> action playbook → <code>capstone</code>), seeds fixed at 42, metrics receipts
+  committed under <code>work/outputs/*.json</code>, figures under <code>work/outputs/figs/</code>.
+  The warehouse notebook authenticates via a Hugging Face read token (never stored in cells).
+  Queue CSVs regenerate on every run and stay out of git by CI design.</p>
+
+  <div class="footer">
+    <p><strong>Acknowledgments &amp; data credit.</strong> Built on the FlyRank ML Internship
+    dataset — real, pseudonymized, public-safe search data provided by
+    <a href="https://flyrank.ai">FlyRank</a>. Thanks to the FlyRank mentors whose session
+    materials (signal audits, honest-validation checklists) shaped the method. Written as the
+    capstone of the FlyRank ML internship, July 2026 cohort.</p>
+  </div>
+</main>
+</body>
+</html>
